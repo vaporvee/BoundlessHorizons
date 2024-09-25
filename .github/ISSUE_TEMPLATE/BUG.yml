@@ -27,14 +27,19 @@ body:
         - 0.1.2
         - 0.1.1
         - 0.1.0
+        - 0.1.2
+        - 0.1.1
+        - 0.1.0
     validations:
       required: true
+  - type: textarea
     id: steps_reproduce
     attributes:
       label: Exact steps to reproduce this error
       description: Tell what completely exactly what you did to get this error.
     validations:
       required: true
+  - type: input
     id: log
     attributes:
       label: Log
@@ -42,8 +47,10 @@ body:
       placeholder: https://mclo.gs/xyz
     validations:
       required: true
+  - type: markdown
     attributes:
       value: Either press on the share button in you modrinth launcher logs or paste it on https://mclo.gs/
+  - type: textarea
     id: additional
     attributes:
       label: Additional information
@@ -51,14 +58,13 @@ body:
       placeholder: Anything else.
     validations:
       required: false
+  - type: checkboxes
     id: reinstalling
     attributes:
       label: Checks
       description: Common mistakes (sorry btw)
       options:
-        - 0.2.0
-        - 0.1.2
-        - 0.1.1
-        - 0.1.0
+        - label: I tried reinstalling the modpack as a new instance or tried to fix it myself with other methods.
           required: true
+        - label: I tried using a modrinth compatible launcher and did not just unpack the `.mrpack`.
           required: true

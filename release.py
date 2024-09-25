@@ -20,13 +20,18 @@ def update_bug_template(versions):
     in_options_section = False
 
     for line in lines:
-        if "options:" in line:
+        if "id: version" in line:
+            updated_lines.append(line)
             in_options_section = True
+        elif in_options_section and "options:" in line:
             updated_lines.append(line)
             for version in versions:
-                updated_lines.append(f"        - {version}\n")
+                updated_lines.append(
+                    f"        - {version}\n"
+                )  # Ensure correct indentation
+            in_options_section = False  # Exit after updating options
         elif in_options_section and line.strip().startswith("-"):
-            continue
+            continue  # Skip old version options
         else:
             updated_lines.append(line)
 
