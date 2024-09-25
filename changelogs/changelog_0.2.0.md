@@ -71,3 +71,4 @@
 - Roughly Enough Professions (REP)
 ### Updated:
 - Ender IO
+- Mods config

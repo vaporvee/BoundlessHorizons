@@ -59,7 +59,7 @@ if len(files_sorted) > 1:
     generate_changelog(
         f"{directory}/{previous_file}",
         f"{directory}/{newest_file}",
-        None,
+        "config.json",
         f"{changelog_directory}/{changelog_filename}",
     )
 
