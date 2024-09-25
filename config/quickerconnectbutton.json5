@@ -1,0 +1,28 @@
+{
+	/* Leave empty to disable the quick connect button
+	   - default: \"\"
+	*/
+	ip: "",
+	/* - default: 25565
+	   - must be between 0.0 and 65535.0
+	*/
+	port: 25565,
+	/* (Deprecated, use buttonLocation) Whether to replace the default multiplayer button on the main menu, or add a new one to its right.
+	   - default: false
+	*/
+	replaceMultiplayerButton: false,
+	/* Where to place the connect button
+	   - default: RIGHT
+	   - must be one of: RIGHT, REPLACE_MULTIPLAYER_BUTTON, REPLACE_SINGLEPLAYER_BUTTON, REPLACE_REALMS_BUTTON
+	*/
+	buttonLocation: "RIGHT",
+	/* The text to display on the button. Leave empty to use "Connect".
+	   - default: \"\"
+	*/
+	text: "",
+	/* What to do if the server has a resource pack.
+	   - default: PROMPT
+	   - must be one of: ENABLED, DISABLED, PROMPT
+	*/
+	resourcePackBehaviour: "PROMPT"
+}

@@ -1,0 +1,2 @@
+#Skip fix for SLIM players, default to true
+skipFixForSlimPlayers = true
