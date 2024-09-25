@@ -10,7 +10,7 @@ def extract_version(filename):
     return (0, 0, 0)
 
 
-def update_bug_template(versions):
+def update_bug_template(new_version):
     template_file = ".github/ISSUE_TEMPLATE/BUG.yml"
 
     with open(template_file, "r") as file:
@@ -18,6 +18,7 @@ def update_bug_template(versions):
 
     updated_lines = []
     in_options_section = False
+    existing_versions = []
 
     for line in lines:
         if "id: version" in line:
@@ -25,13 +26,14 @@ def update_bug_template(versions):
             in_options_section = True
         elif in_options_section and "options:" in line:
             updated_lines.append(line)
-            for version in versions:
-                updated_lines.append(
-                    f"        - {version}\n"
-                )  # Ensure correct indentation
-            in_options_section = False  # Exit after updating options
+            existing_versions = [
+                line.strip() for line in lines if line.strip().startswith("-")
+            ]
+            if f"- {new_version}" not in existing_versions:
+                updated_lines.append(f"        - {new_version}\n")
+            in_options_section = False
         elif in_options_section and line.strip().startswith("-"):
-            continue  # Skip old version options
+            continue
         else:
             updated_lines.append(line)
 
@@ -63,9 +65,8 @@ if len(files_sorted) > 1:
 
     print(f"Changelog generated: {changelog_directory}/{changelog_filename}")
 
-    versions = [".".join(map(str, extract_version(f))) for f in files_sorted]
-    update_bug_template(versions)
-    print(f"Updated .github/ISSUE_TEMPLATE/BUG.yml with versions: {versions}")
+    update_bug_template(newest_version)
+    print(f"Updated .github/ISSUE_TEMPLATE/BUG.yml with new version: {newest_version}")
 
 else:
     print("Not enough .mrpack files found in the directory to generate a changelog.")
