@@ -1,5 +1,6 @@
 import os
 import re
+import subprocess
 from modpack_changelogger import generate_changelog
 
 
@@ -44,7 +45,7 @@ def update_bug_template(new_version):
 directory = "mrpack"
 changelog_directory = "changelogs"
 files = [f for f in os.listdir(directory) if f.endswith(".mrpack")]
-print(f"Found mrpack files: {files}")
+print(f"Found mrpack files: {files}\n")
 
 files_sorted = sorted(files, key=lambda f: extract_version(f), reverse=True)
 
@@ -63,7 +64,14 @@ if len(files_sorted) > 1:
         f"{changelog_directory}/{changelog_filename}",
     )
 
-    print(f"Changelog generated: {changelog_directory}/{changelog_filename}")
+    print(f"Changelog generated")
+    # Open the changelog file in VSCode (remove or replace with your preferred editor)
+    try:
+        changelog_path = os.path.abspath(f"{changelog_directory}/{changelog_filename}")
+        print(f"Opening changelog file in VSCode: {changelog_path}")
+        subprocess.run(f'code "{changelog_path}"', shell=True, check=True)
+    except Exception as e:
+        print(f"Failed to open the changelog file in VSCode: {e}")
 
     update_bug_template(newest_version)
     print(f"Updated .github/ISSUE_TEMPLATE/BUG.yml with new version: {newest_version}")
