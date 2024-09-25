@@ -2,24 +2,24 @@
   "_schemaVersion": 6,
   "_lastMCVersionId": 767,
   "generalSettings": {
-    "detectATLauncherInstance": true,
-    "detectCurseManifest": true,
-    "detectMultiMCManifest": true,
-    "detectMCUpdaterInstance": true,
-    "detectTechnicPack": true,
+    "detectATLauncherInstance": false,
+    "detectCurseManifest": false,
+    "detectMultiMCManifest": false,
+    "detectMCUpdaterInstance": false,
+    "detectTechnicPack": false,
     "detectModrinthPack": true,
     "detectBiomeData": true,
     "detectDimensionData": true,
     "detectWorldData": true,
-    "clientId": "450485984333660181",
-    "defaultIcon": "grass",
+    "clientId": "1288483938079080470",
+    "defaultIcon": "icon",
     "enableJoinRequests": false,
     "preferredClientLevel": 3,
     "resetTimeOnInit": false,
     "autoRegister": false
   },
   "biomeSettings": {
-    "fallbackBiomeIcon": "unknown",
+    "fallbackBiomeIcon": "icon",
     "biomeData": {
       "default": {
         "textOverride": "Playing in {biome.name}"
@@ -27,7 +27,7 @@
     }
   },
   "dimensionSettings": {
-    "fallbackDimensionIcon": "unknown",
+    "fallbackDimensionIcon": "icon",
     "dimensionData": {
       "default": {
         "textOverride": "In the {dimension.name}"
@@ -35,7 +35,7 @@
     }
   },
   "serverSettings": {
-    "fallbackServerIcon": "default",
+    "fallbackServerIcon": "icon",
     "fallbackServerName": "Minecraft Server",
     "fallbackServerMotd": "A Minecraft Server",
     "serverData": {
@@ -71,7 +71,7 @@
     "refreshRate": 2,
     "allowPlaceholderPreviews": false,
     "guiSettings": {
-      "fallbackGuiIcon": "unknown",
+      "fallbackGuiIcon": "icon",
       "guiData": {
         "default": {
           "textOverride": "In {screen.name}"
@@ -82,7 +82,7 @@
       "default": "Holding {item.message.holding}"
     },
     "entitySettings": {
-      "fallbackEntityIcon": "unknown",
+      "fallbackEntityIcon": "icon",
       "targetData": {
         "default": {
           "textOverride": "Targeting {entity.target.name}"
@@ -119,14 +119,14 @@
       "gameState": "{getOrDefault(server.message)} {getOrDefault(pack.name)}",
       "largeImageKey": "{getFirst(menu.icon, dimension.icon)}",
       "largeImageText": "{getFirst(menu.message, dimension.message)}",
-      "smallImageKey": "{getFirst(server.icon, pack.icon)}",
-      "smallImageText": "{getOrDefault(server.message)} {getOrDefault(pack.name)}",
+      "smallImageKey": "modrinth",
+      "smallImageText": "Available on modrinth!",
       "startTimestamp": "{data.general.time}",
       "endTimestamp": "",
       "buttons": {
         "default": {
-          "label": "Example Text",
-          "url": "https://google.com"
+          "label": "Show modpack",
+          "url": "https://modrinth.com/modpack/boundless"
         }
       }
     },
@@ -144,7 +144,7 @@
       "player_info_out": "As {player.name}",
       "player_info_health": "Health: {player.health.current}/{player.health.max}",
       "world_info": "On {world.name}",
-      "pack": "{pack.name}"
+      "pack": "Boundless Horizon"
     }
   }
 }

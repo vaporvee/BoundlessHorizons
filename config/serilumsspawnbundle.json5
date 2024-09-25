@@ -1,0 +1,26 @@
+{
+	// If the bundled Bogged Spawn mod should be enabled.
+	"enableBoggedSpawn": true,
+	// If the bundled Breeze Spawn mod should be enabled.
+	"enableBreezeSpawn": true,
+	// If the bundled Cave Spider Spawn mod should be enabled.
+	"enableCaveSpiderSpawn": true,
+	// If the bundled Giant Spawn mod should be enabled.
+	"enableGiantSpawn": true,
+	// If the bundled Husk Spawn mod should be enabled.
+	"enableHuskSpawn": true,
+	// If the bundled Mooshroom Spawn mod should be enabled.
+	"enableMooshroomSpawn": true,
+	// If the bundled Mooshroom Tweaks mod should be enabled.
+	"enableMooshroomTweaks": true,
+	// If the bundled More Zombie Villagers mod should be enabled.
+	"enableMoreZombieVillagers": true,
+	// If the bundled Skeleton Horse Spawn mod should be enabled.
+	"enableSkeletonHorseSpawn": true,
+	// If the bundled Stray Spawn mod should be enabled.
+	"enableStraySpawn": true,
+	// If the bundled Zombie Horse Spawn mod should be enabled.
+	"enableZombieHorseSpawn": true,
+	// If the bundled Zombie Villagers From Spawner mod should be enabled.
+	"enableZombieVillagersFromSpawner": true
+}

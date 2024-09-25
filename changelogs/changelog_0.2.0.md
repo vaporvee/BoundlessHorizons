@@ -1,0 +1,73 @@
+## Boundless Horizons 0.2.0
+
+### Added:
+- Areas
+- Arts & Crafts
+- Better Spawner Control
+- Bigger Sponge Absorption Radius
+- Block Runner
+- Cristel Lib
+- Crying Portals
+- Dismount Entity
+- Dynamic Crosshair
+- EMI
+- EMI Enchanting
+- EMI Loot
+- EMI professions (EMIP)
+- Easy Elytra Takeoff
+- Edibles
+- Enchanter Fix
+- Fish On The Line
+- Fixed Anvil Repair Cost
+- Fzzy Config
+- GUI Clock
+- GUI Compass
+- Grass Seeds
+- Healing Campfire
+- Husk Spawn
+- Ice Prevents Crop Growth
+- Improved Sign Editing
+- Infinite Trading
+- Inventory Totem
+- Just Mob Heads
+- Just Player Heads
+- Keep My Soil Tilled
+- Lootr
+- MI Tweaks
+- Mineable Spawner
+- Mineral Chance
+- Mooshroom Spawn
+- Mooshroom Tweaks
+- Name Tag Tweaks
+- Naturally Charged Creepers
+- No Hostiles Around Campfire
+- Omega Mute
+- Pet Names
+- Random Mob Effects
+- Random Village Names
+- Realistic Bees
+- Replanting Crops
+- Respawning Shulkers
+- RestaurantCraft
+- Skeleton Horse Spawn
+- Sleeping Bags
+- Smaller Nether Portals
+- SmartBlockPlacement
+- Starter Kit
+- Sticky Enchanting Lapis
+- Stoneworks
+- Stray Spawn
+- Tesseract API
+- Towns and Towers
+- Tree Harvester
+- Village Bell Recipe
+- Village Spawn Point
+- Villager Names
+- Visual Workbench
+- Weaker Spiderwebs
+- Zombie Horse Spawn
+### Removed:
+- Roughly Enough Items (REI)
+- Roughly Enough Professions (REP)
+### Updated:
+- Ender IO
