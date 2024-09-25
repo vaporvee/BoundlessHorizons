@@ -1,0 +1,27 @@
+name: Feature request
+description: File a feature request
+title: "[Feature request]: "
+labels: ["enhancement"]
+assignees:
+  - vaporvee
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to fill out this feature request!
+  - type: textarea
+    id: idea
+    attributes:
+      label: What is your idea?
+      description: Tell me what you want to see in the modpack.
+      placeholder: Tell me what you want to see!
+      value: "I have a cool new feature!"
+    validations:
+      required: true
+  - type: textarea
+    id: additional
+    attributes:
+      label: modrinth links (if you have any)
+      description: You need to provide modrinth urls for new content or i get licensing issues.
+      placeholder: https://modrinth.com/mod/xyz
+    validations:
+      required: false
