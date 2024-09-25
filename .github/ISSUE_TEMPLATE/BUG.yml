@@ -1,0 +1,67 @@
+name: Error
+description: Get help with an error or report a bug
+title: "[Issue/Bug]: "
+labels: ["bug"]
+assignees:
+  - vaporvee
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to fill out this bug/crash report!
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us, what did you expect to happen?
+      placeholder: Tell us what you see!
+      value: "A bug happened!"
+    validations:
+      required: true
+  - type: dropdown
+    id: version
+    attributes:
+      label: Version
+      description: What version of the Modpack are you running?
+      options:
+        - 0.2.0
+        - 0.1.2
+        - 0.1.1
+        - 0.1.0
+    validations:
+      required: true
+  - type: textarea
+    id: steps_reproduce
+    attributes:
+      label: Exact steps to reproduce this error
+      description: Tell what completely exactly what you did to get this error.
+    validations:
+      required: true
+  - type: input
+    id: log
+    attributes:
+      label: Log
+      description: Your mclogs url
+      placeholder: https://mclo.gs/xyz
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: Either press on the share button in you modrinth launcher logs or paste it on https://mclo.gs/
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional information
+      description: If you have anything else tell me here
+      placeholder: Anything else.
+    validations:
+      required: false
+  - type: checkboxes
+    id: reinstalling
+    attributes:
+      label: Checks
+      description: Common mistakes (sorry btw)
+      options:
+        - label: I tried reinstalling the modpack as a new instance or tried to fix it myself with other methods.
+          required: true
+       - label: I tried using a modrinth compatible launcher and did not just unpack the `.mrpack`.
+          required: true
