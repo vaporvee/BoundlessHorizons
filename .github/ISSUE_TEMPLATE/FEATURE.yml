@@ -22,6 +22,6 @@ body:
     attributes:
       label: modrinth links (if you have any)
       description: You need to provide modrinth urls for new content or i get licensing issues.
-      placeholder: Anything else.
+      placeholder: https://modrinth.com/mod/xyz
     validations:
       required: false
