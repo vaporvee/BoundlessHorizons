@@ -63,5 +63,5 @@ body:
       options:
         - label: I tried reinstalling the modpack as a new instance or tried to fix it myself with other methods.
           required: true
-       - label: I tried using a modrinth compatible launcher and did not just unpack the `.mrpack`.
+        - label: I tried using a modrinth compatible launcher and did not just unpack the `.mrpack`.
           required: true
