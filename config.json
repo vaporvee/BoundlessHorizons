@@ -12,7 +12,7 @@
   "format": {
     "style": "bullet",
     "header": {
-      "show_header": true,
+      "show_header": false,
       "size": 2,
       "title": "auto",
       "show_old_version_number": false,

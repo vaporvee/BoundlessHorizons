@@ -1,0 +1,81 @@
+### Summary:
+Fixed **A LOT** of performance issues and crashes. For some reason multi threading mods break most mods. Distant Horizons need to be added manualy. Also a lot of magic mods and some performance mods.
+
+
+### Added:
+- AI Improvements
+- Accessories
+- Alternate Current
+- Artifacts
+- Bartering Station
+- Better Beds
+- Crafting Tweaks
+- Curios API Continuation
+- Cut Through
+- Diagonal Fences
+- Diagonal Walls
+- Diagonal Windows
+- Drippy Loading Screen
+- Easy Anvils
+- Easy Magic
+- Easy Shulker Boxes
+- Echo Chest
+- Extended Industrialization
+- FPS Reducer
+- Fast Paintings
+- GpuTape
+- Hang Glider
+- Held Item Tooltips
+- ImmediatelyFast
+- Ksyxis
+- Leaves Be Gone
+- Let Me Despawn
+- Magnum Torch
+- Metal Bundles
+- Mob Lassos
+- Modonomicon
+- Moonlight Lib
+- Observable
+- Occultism
+- Packet Fixer
+- Permanent Sponges
+- Pick Up Notifier
+- Ranged Weapon API
+- Relics
+- Relics: Artifacts Compat
+- ServerCore
+- Shield API
+- SmartBrainLib
+- Spiky Spikes
+- Squat Grow
+- Structure Pool API
+- Trading Post
+### Removed:
+- Bigger Sponge Absorption Radius
+- Celestria
+- Concurrent Chunk Management Engine (Fabric)
+- Dimensional Threads Reforked
+- Distant Horizons
+- ItemPhysic
+- Potatoptimize
+- RestaurantCraft
+- ThreadTweak
+- [Let's Do] Vinery
+### Updated:
+- Chat Heads
+- Controlling
+- Dungeons and Taverns
+- EMI Loot
+- Enchanter Fix
+- Ender IO
+- Friends & Foes (Forge/NeoForge)
+- Fzzy Config
+- Idle Boost
+- Oh The Biomes We've Gone
+- Pipez
+- Puzzles Lib
+- Resourceful Config
+- Tesseract API
+- The Bumblezone - NeoForge/Forge
+- spark
+- Mods config
