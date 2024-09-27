@@ -4,15 +4,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.Comparator;
+import java.nio.file.*;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -23,46 +19,77 @@ import com.google.gson.JsonParser;
 public class BoundlessServer {
     private static final Logger logger = LogManager.getLogger(BoundlessServer.class);
     private static final String currentDir = System.getProperty("user.dir");
+    private static final String installerFileName = "installer.jar";
+
     public static void main(String[] args) throws IOException {
-        logger.info("Downloading and installing NeoForge Server");
         String neoForgeVersion = "21.1.62";
-        downloadAndExecuteJar(
-                "https://maven.neoforged.net/releases/net/neoforged/neoforge/" + neoForgeVersion + "/neoforge-" + neoForgeVersion + "-installer.jar",
-                "installer.jar", new String[]{"--install-server"});
-        logger.info("↑ Yeah no I'll do that for you automatically...");
-        Files.deleteIfExists(Path.of(currentDir,"installer.jar"));
-        downloadMrPack("https://cdn.modrinth.com/data/ScTwzzH2/versions/IImtmTWG/Boundless%20Horizons%200.2.0.mrpack");
+        String jarUrl = String.format("https://maven.neoforged.net/releases/net/neoforged/neoforge/%s/neoforge-%s-installer.jar", neoForgeVersion, neoForgeVersion);
+
+        logger.info("Downloading and installing NeoForge Server...");
+        downloadAndExecuteJar(jarUrl, new String[]{"--install-server"});
+        deleteFileIfExists(Path.of(currentDir, installerFileName));
+
+        String mrPackUrl = "https://cdn.modrinth.com/data/ScTwzzH2/versions/IImtmTWG/Boundless%20Horizons%200.2.0.mrpack";
+        String[] excludedPaths = {
+                "mods/Sounds",
+                "mods/sodium-extra",
+                "mods/watermedia",
+                "mods/world-host"
+        };
+        downloadMrPack(mrPackUrl, excludedPaths);
+
+        launchServer();
     }
 
-    public static void downloadAndExecuteJar(String fileURL, String fileName, String[] jarArgs) {
-        String currentDir = System.getProperty("user.dir");
-        String destinationPath = currentDir + File.separator + fileName;
+    private static boolean shouldProcessFile(JsonObject fileObject, String[] excludedPaths) {
+        String path = fileObject.get("path").getAsString();
+        if (path.contains("mods/") && "required".equals(fileObject.getAsJsonObject("env").get("server").getAsString())) {
+            for (String exclude : excludedPaths) {
+                if (path.startsWith(exclude)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private static void launchServer() {
+        String neoForgeVersion = "21.1.62";
+        String osSpecificArgs = System.getProperty("os.name").startsWith("Windows")
+                ? "@libraries/net/neoforged/neoforge/" + neoForgeVersion + "/win_args.txt"
+                : "@libraries/net/neoforged/neoforge/" + neoForgeVersion + "/unix_args.txt";
+
+        logger.info("Starting Boundless Horizons Server...");
+        executeJarFile(new String[]{"@user_jvm_args.txt", osSpecificArgs});
+    }
+
+    private static void downloadAndExecuteJar(String fileURL, String[] jarArgs) {
+        String destinationPath = currentDir + File.separator + installerFileName;
 
         try {
-            logger.info("Downloading the JAR file from: {}", fileURL);
-            URI uri = new URI(fileURL);
-            URL url = uri.toURL();
-            InputStream inputStream = url.openStream();
-            Path targetPath = Paths.get(destinationPath);
-            Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
-            inputStream.close();
-            logger.info("Download completed successfully: {}", destinationPath);
+            logger.info("Downloading file from: {}", fileURL);
+            URL url = new URI(fileURL).toURL();
+            try (InputStream inputStream = url.openStream()) {
+                Files.copy(inputStream, Paths.get(destinationPath), StandardCopyOption.REPLACE_EXISTING);
+            }
+            logger.info("Download completed: {}", destinationPath);
         } catch (IOException | URISyntaxException e) {
-            logger.error("Error downloading the file from {}", fileURL, e);
+            logger.error("Error downloading file from {}: {}", fileURL, e.getMessage());
             return;
         }
 
+        logger.info("Executing the downloaded JAR file...");
+        executeJarFile(new String[]{"-jar",installerFileName, "--install-server"});
+    }
+
+    private static void executeJarFile(String[] javaArgs) {
+        String[] command = new String[1 + javaArgs.length];
+        command[0] = "java";
+        System.arraycopy(javaArgs, 0, command, 1, javaArgs.length);
+
         try {
-            logger.info("Executing the downloaded JAR file...");
-
-            String[] command = new String[3 + jarArgs.length];
-            command[0] = "java";
-            command[1] = "-jar";
-            command[2] = fileName;
-            System.arraycopy(jarArgs, 0, command, 3, jarArgs.length);
-
-            ProcessBuilder processBuilder = new ProcessBuilder(command);
-            processBuilder.directory(new File(currentDir));
+            ProcessBuilder processBuilder = new ProcessBuilder(command).directory(new File(currentDir));
             Process process = processBuilder.start();
 
             StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), "OUTPUT");
@@ -74,202 +101,152 @@ public class BoundlessServer {
             process.waitFor();
 
             process.getOutputStream().close();
-
             outputGobbler.join();
             errorGobbler.join();
+
         } catch (IOException | InterruptedException e) {
-            logger.error("Error executing the JAR file: {}", fileName, e);
+            logger.error("Error executing command: {}", Arrays.toString(command), e);
         }
     }
 
-    public static void downloadMrPack(String fileURL) {
-        String outputFile = "modrinth.index.json";
-
+    private static void downloadMrPack(String fileURL, String[] excludedPaths) {
+        Path tempMrPackPath = Path.of(currentDir, "temp.mrpack");
         try {
             logger.info("Downloading .mrpack file from: {}", fileURL);
-            URI uri = new URI(fileURL);
-            URL url = uri.toURL();
-            HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
-            httpConn.setRequestMethod("GET");
-            httpConn.setConnectTimeout(5000);
-            httpConn.setReadTimeout(5000);
-
-            int responseCode = httpConn.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                InputStream inputStream = httpConn.getInputStream();
-                Path outputPath = Path.of(currentDir, "temp.mrpack");
-                Files.copy(inputStream, outputPath, StandardCopyOption.REPLACE_EXISTING);
-                inputStream.close();
-                logger.info("Download completed successfully: {}", outputPath);
-
-                unzipMrPack(outputPath.toString());
-
-                if (!Files.exists(Path.of(currentDir, outputFile))) {
-                    logger.error("An error occurred: temp.mrpack does not contain a valid modrinth.index.json file.");
-                    return;
-                }
-
-                logger.info("Extraction completed. Processing {}...", outputFile);
-                processModrinthIndex(outputFile);
-
-                copyOverrides();
-
-                Files.deleteIfExists(outputPath);
-                Files.deleteIfExists(Path.of(currentDir,"modrinth.index.json"));
-                logger.info("Temporary file temp.mrpack deleted.");
-            } else {
-                logger.error("Failed to download the file: Server returned response code {}", responseCode);
+            URL url = new URI(fileURL).toURL();
+            try (InputStream inputStream = url.openStream()) {
+                Files.copy(inputStream, tempMrPackPath, StandardCopyOption.REPLACE_EXISTING);
             }
-            httpConn.disconnect();
-        } catch (IOException | URISyntaxException e) {
-            logger.error("Error downloading or extracting the .mrpack file: {}", e.getMessage());
-        }
-    }
+            logger.info("Download completed: {}", tempMrPackPath);
 
-    private static void processModrinthIndex(String jsonFile) {
-        logger.info("Processing {}...", jsonFile);
+            unzipMrPack(tempMrPackPath.toString());
 
-        try (Reader reader = Files.newBufferedReader(Path.of(jsonFile))) {
-            JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
-            String name = jsonObject.get("name").getAsString();
-            String versionId = jsonObject.get("versionId").getAsString();
+            Path modrinthIndexFile = Path.of(currentDir, "modrinth.index.json");
+            if (!Files.exists(modrinthIndexFile)) {
+                logger.error("Error: temp.mrpack does not contain a valid modrinth.index.json file.");
+                return;
+            }
 
-            logger.info("Installing modpack {} version {}...", name, versionId);
+            logger.info("Processing modpack...");
+            try (Reader reader = Files.newBufferedReader(modrinthIndexFile)) {
+                JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
+                JsonArray files = jsonObject.getAsJsonArray("files");
 
-            JsonArray files = jsonObject.getAsJsonArray("files");
+                for (var fileElement : files) {
+                    JsonObject fileObject = fileElement.getAsJsonObject();
+                    String path = fileObject.get("path").getAsString();
+                    String downloadUrl = fileObject.getAsJsonArray("downloads").get(0).getAsString();
 
-            for (int i = 0; i < files.size(); i++) {
-                JsonObject fileObject = files.get(i).getAsJsonObject();
-                String downloadUrl = fileObject.getAsJsonArray("downloads").get(0).getAsString();
-                String path = fileObject.get("path").getAsString();
+                    if (shouldProcessFile(fileObject, excludedPaths)) {
+                        Path outputPath = Path.of(currentDir, path);
+                        Files.createDirectories(outputPath.getParent());
+                        logger.info("Downloading mod: {}", path);
 
-                JsonObject env = fileObject.getAsJsonObject("env");
-
-                if (path.contains("mods/") && "required".equals(env.get("server").getAsString())) {
-                    Path outputPath = Path.of(System.getProperty("user.dir"), path);
-                    Files.createDirectories(outputPath.getParent());
-
-                    logger.info("Downloading {}...", path);
-                    try (InputStream in = new URL(downloadUrl).openStream()) {
-                        Files.copy(in, outputPath, StandardCopyOption.REPLACE_EXISTING);
-                        logger.info("Downloaded {} to {}", path, outputPath);
-                    } catch (IOException e) {
-                        logger.error("Failed to download {}: {}", path, e.getMessage());
+                        try (InputStream in = new URL(downloadUrl).openStream()) {
+                            Files.copy(in, outputPath, StandardCopyOption.REPLACE_EXISTING);
+                            logger.info("Downloaded {} to {}", path, outputPath);
+                        } catch (IOException e) {
+                            logger.error("Failed to download mod {}: {}", path, e.getMessage());
+                        }
+                    } else {
+                        logger.info("Skipping: {}", path);
                     }
-                } else {
-                    logger.info("Skipping {}: not a required mod or does not belong to mods directory.", path);
                 }
+            } catch (IOException e) {
+                logger.error("Error processing modrinth.index.json: {}", e.getMessage());
             }
-        } catch (IOException e) {
-            logger.error("Error processing {}: {}", jsonFile, e.getMessage());
+
+            copyOverrides();
+            Files.deleteIfExists(tempMrPackPath);
+            Files.deleteIfExists(modrinthIndexFile);
+
+        } catch (IOException | URISyntaxException e) {
+            logger.error("Error downloading or processing .mrpack file: {}", e.getMessage());
         }
     }
 
     private static void copyOverrides() {
         Path modsSource = Path.of(currentDir, "overrides", "mods");
         Path configSource = Path.of(currentDir, "overrides", "config");
-        Path modsDestination = Path.of(currentDir, "mods");
-        Path configDestination = Path.of(currentDir, "config");
-        Path overridesSource = Path.of(currentDir, "overrides");
 
-        try {
-            if (Files.exists(modsSource)) {
-                if (!Files.exists(modsDestination)) {
-                    Files.createDirectories(modsDestination);
-                }
+        if (Files.exists(modsSource)) {
+            try {
                 Files.walk(modsSource).forEach(source -> {
-                    Path dest = modsDestination.resolve(modsSource.relativize(source));
+                    Path destination = Path.of(currentDir, "mods").resolve(modsSource.relativize(source));
                     try {
                         if (Files.isDirectory(source)) {
-                            Files.createDirectories(dest);
+                            Files.createDirectories(destination);
                         } else {
-                            Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+                            Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+                            logger.info("Copied mod: {}", destination);
                         }
-                        logger.info("Copied mod: {}", dest);
                     } catch (IOException e) {
-                        logger.error("Failed to copy mod {}: {}", source, e.getMessage());
+                        logger.error("Error copying mod: {}", source, e.getMessage());
                     }
                 });
-            } else {
-                logger.warn("Mods source directory does not exist: {}", modsSource);
+            } catch (IOException e) {
+                logger.error("Error copying mods: {}", e.getMessage());
             }
+        } else {
+            logger.warn("Mods source directory does not exist: {}", modsSource);
+        }
 
-            if (Files.exists(configSource)) {
-                if (!Files.exists(configDestination)) {
-                    Files.createDirectories(configDestination);
-                }
+        if (Files.exists(configSource)) {
+            try {
                 Files.walk(configSource).forEach(source -> {
-                    Path dest = configDestination.resolve(configSource.relativize(source));
+                    Path destination = Path.of(currentDir, "config").resolve(configSource.relativize(source));
                     try {
                         if (Files.isDirectory(source)) {
-                            Files.createDirectories(dest);
+                            Files.createDirectories(destination);
                         } else {
-                            Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+                            Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+                            logger.info("Copied config: {}", destination);
                         }
-                        logger.info("Copied config: {}", dest);
                     } catch (IOException e) {
-                        logger.error("Failed to copy config {}: {}", source, e.getMessage());
+                        logger.error("Error copying config: {}", source, e.getMessage());
                     }
                 });
-            } else {
-                logger.warn("Config source directory does not exist: {}", configSource);
+            } catch (IOException e) {
+                logger.error("Error copying config: {}", e.getMessage());
             }
-
-            deleteDirectoryRecursively(overridesSource);
-            logger.info("Deleted the overrides directory successfully.");
-
-        } catch (IOException e) {
-            logger.error("Error while copying / deleting overrides: {}", e.getMessage());
         }
     }
 
-    private static void deleteDirectoryRecursively(Path dirPath) throws IOException {
-        Files.walk(dirPath)
-                .sorted(Comparator.reverseOrder())
-                .forEach(path -> {
-                    try {
-                        Files.delete(path);
-                    } catch (IOException e) {
-                        logger.error("Failed to delete {}: {}", path, e.getMessage());
-                    }
-                });
-    }
-
-    private static void unzipMrPack(String mrPackFilePath) {
-        try (ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(mrPackFilePath))) {
-            ZipEntry entry;
-            while ((entry = zipInputStream.getNextEntry()) != null) {
-                File file = new File(currentDir, entry.getName());
-                if (entry.isDirectory()) {
-                    if (!file.isDirectory() && !file.mkdirs()) {
-                        logger.warn("Failed to create directory: {}", file);
+    private static void unzipMrPack(String zipFilePath) throws IOException {
+        Path destDir = Path.of(currentDir);
+        try (ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath))) {
+            ZipEntry entry = zipIn.getNextEntry();
+            while (entry != null) {
+                Path filePath = destDir.resolve(entry.getName());
+                if (!entry.isDirectory()) {
+                    Files.createDirectories(filePath.getParent());
+                    try (OutputStream out = Files.newOutputStream(filePath)) {
+                        zipIn.transferTo(out);
                     }
                 } else {
-                    file.getParentFile().mkdirs();
-
-                    try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file))) {
-                        byte[] buffer = new byte[1024];
-                        int bytesRead;
-                        while ((bytesRead = zipInputStream.read(buffer)) != -1) {
-                            bos.write(buffer, 0, bytesRead);
-                        }
-                    }
-                    logger.info("Extracted file: {}", file);
+                    Files.createDirectories(filePath);
                 }
-                zipInputStream.closeEntry();
+                zipIn.closeEntry();
+                entry = zipIn.getNextEntry();
             }
+        }
+    }
+
+    private static void deleteFileIfExists(Path path) {
+        try {
+            Files.deleteIfExists(path);
         } catch (IOException e) {
-            logger.error("Error while extracting .mrpack file: {}", e.getMessage());
+            logger.error("Error deleting file: {}", path, e.getMessage());
         }
     }
 
     private static class StreamGobbler extends Thread {
         private final InputStream inputStream;
-        private final String streamType;
+        private final String type;
 
-        public StreamGobbler(InputStream inputStream, String streamType) {
+        public StreamGobbler(InputStream inputStream, String type) {
             this.inputStream = inputStream;
-            this.streamType = streamType;
+            this.type = type;
         }
 
         @Override
@@ -277,10 +254,10 @@ public class BoundlessServer {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    logger.info(line);
+                    logger.info("[{}] {}", type, line);
                 }
             } catch (IOException e) {
-                logger.error("Error reading {} stream: {}", streamType, e.getMessage());
+                logger.error("Error reading output stream: {}", e.getMessage());
             }
         }
     }

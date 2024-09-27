@@ -1,6 +1,7 @@
 .gradle
 build/
-run/
+run/*
+!run/.gitkeep
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
