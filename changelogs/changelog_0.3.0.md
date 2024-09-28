@@ -1,6 +1,5 @@
 ### Summary:
-Fixed **A LOT** of performance issues and crashes. For some reason multi threading mods break most mods. Distant Horizons need to be added manualy. Also a lot of magic mods and some performance mods.
-
+Fixed **A LOT** of performance issues and crashes. For some reason multi threading mods break most mods. Distant Horizons need to be added manualy. Also added a lot of magic mods and some performance mods.
 
 ### Added:
 - AI Improvements
