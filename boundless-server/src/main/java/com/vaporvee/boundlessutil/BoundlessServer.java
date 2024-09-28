@@ -1,44 +1,150 @@
 package com.vaporvee.boundlessutil;
 
+import com.google.gson.JsonArray;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 public class BoundlessServer {
     private static final Logger logger = LogManager.getLogger(BoundlessServer.class);
     private static final String currentDir = System.getProperty("user.dir");
     private static final String installerFileName = "installer.jar";
+    private static final String serverConfigFileName = "boundless-server.json";
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
+        writeJvmArgsToFile(args);
+        if (isServerUpdated()) {
+            logger.info("Server is already updated. Skipping download and installation steps.");
+            launchServer();
+            return;
+        }
+
         String neoForgeVersion = "21.1.62";
+        String modpack = "boundless";
         String jarUrl = String.format("https://maven.neoforged.net/releases/net/neoforged/neoforge/%s/neoforge-%s-installer.jar", neoForgeVersion, neoForgeVersion);
 
         logger.info("Downloading and installing NeoForge Server...");
-        downloadAndExecuteJar(jarUrl, new String[]{"--install-server"});
+        downloadAndExecuteInstaller(jarUrl);
+
         deleteFileIfExists(Path.of(currentDir, installerFileName));
 
-        String mrPackUrl = "https://cdn.modrinth.com/data/ScTwzzH2/versions/IImtmTWG/Boundless%20Horizons%200.2.0.mrpack";
         String[] excludedPaths = {
                 "mods/Sounds",
                 "mods/sodium-extra",
                 "mods/watermedia",
                 "mods/world-host"
         };
-        downloadMrPack(mrPackUrl, excludedPaths);
+        downloadMrPack(getLatestModpackUrl(modpack, "beta"), excludedPaths);
 
+        markServerAsUpdated();
         launchServer();
+    }
+
+
+    private static List<String> readJvmArgsFromFile() {
+        Path jvmArgsFile = Path.of(currentDir, "user_jvm_args.txt");
+        List<String> jvmArgs = new ArrayList<>();
+
+        try (BufferedReader reader = Files.newBufferedReader(jvmArgsFile)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jvmArgs.add(line);
+            }
+        } catch (IOException e) {
+            logger.error("Error reading JVM arguments from file: {}", e.getMessage());
+        }
+
+        return jvmArgs;
+    }
+
+    public static String getLatestModpackUrl(String modpackSlug, String channel) {
+        String apiUrl = "https://api.modrinth.com/v2/project/" + modpackSlug + "/version";
+
+        try {
+            URL url = new URL(apiUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0");
+            conn.setRequestProperty("Accept", "application/json");
+
+            InputStream inputStream = conn.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            StringBuilder response = new StringBuilder();
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+
+            reader.close();
+
+            JsonArray versions = JsonParser.parseString(response.toString()).getAsJsonArray();
+            for (var versionElement : versions) {
+                JsonObject version = versionElement.getAsJsonObject();
+                if (version.get("version_type").getAsString().equals(channel)) {
+                    JsonArray files = version.getAsJsonArray("files");
+                    return files.get(0).getAsJsonObject().get("url").getAsString();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private static void writeJvmArgsToFile(String[] jvmArgs) {
+        Path jvmArgsFile = Path.of(currentDir, "user_jvm_args.txt");
+
+        try (BufferedWriter writer = Files.newBufferedWriter(jvmArgsFile)) {
+            for (String arg : jvmArgs) {
+                writer.write(arg);
+                writer.newLine();
+            }
+            logger.info("JVM arguments written to: {}", jvmArgsFile);
+        } catch (IOException e) {
+            logger.error("Error writing to user_jvm_args.txt: {}", e.getMessage());
+        }
+    }
+
+    private static boolean isServerUpdated() {
+        Path configFilePath = Path.of(currentDir, serverConfigFileName);
+        if (Files.exists(configFilePath)) {
+            try (Reader reader = Files.newBufferedReader(configFilePath)) {
+                JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
+                return jsonObject.has("updated") && jsonObject.get("updated").getAsBoolean();
+            } catch (IOException e) {
+                logger.error("Error reading {}: {}", serverConfigFileName, e.getMessage());
+            }
+        }
+        return false;
+    }
+
+    private static void markServerAsUpdated() {
+        JsonObject config = new JsonObject();
+        config.addProperty("updated", true);
+
+        Path configFilePath = Path.of(currentDir, serverConfigFileName);
+        try (Writer writer = Files.newBufferedWriter(configFilePath)) {
+            writer.write(config.toString());
+            logger.info("Server update marked as complete in {}", serverConfigFileName);
+        } catch (IOException e) {
+            logger.error("Error writing to {}: {}", serverConfigFileName, e.getMessage());
+        }
     }
 
     private static boolean shouldProcessFile(JsonObject fileObject, String[] excludedPaths) {
@@ -54,60 +160,121 @@ public class BoundlessServer {
         return false;
     }
 
+    private static void downloadAndExecuteInstaller(String fileURL) {
+        String destinationPath = currentDir + File.separator + installerFileName;
+
+        try {
+            logger.info("Downloading file from: {}", fileURL);
+            URL url = new URI(fileURL).toURL();
+
+            try (InputStream inputStream = url.openStream()) {
+                Files.copy(inputStream, Paths.get(destinationPath), StandardCopyOption.REPLACE_EXISTING);
+                logger.info("Download completed: {}", destinationPath);
+            }
+
+            Path downloadedFile = Paths.get(destinationPath);
+            if (Files.exists(downloadedFile)) {
+                long fileSize = Files.size(downloadedFile);
+                logger.info("Found installer.jar with size: {} bytes, proceeding to execute...", fileSize);
+
+                executeInstaller(new String[]{"-jar", destinationPath, "--install-server"});
+            } else {
+                logger.error("installer.jar not found at expected path: {}", destinationPath);
+                System.exit(1);
+            }
+        } catch (IOException | URISyntaxException e) {
+            logger.error("Error downloading file from {}: {}", fileURL, e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    private static void executeInstaller(String[] jarArgs) {
+        Process installerProcess = executeJarFile(jarArgs, false); // Use false to handle the installer output manually
+        if (installerProcess == null) {
+            logger.error("Failed to start the installer.jar process. Exiting program.");
+            System.exit(1);
+        }
+
+        new Thread(() -> {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(installerProcess.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println(line);
+                }
+            } catch (IOException e) {
+                logger.error("Error reading installer output: {}", e.getMessage());
+            }
+        }).start();
+
+        new Thread(() -> {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(installerProcess.getErrorStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.err.println(line);
+                }
+            } catch (IOException e) {
+                logger.error("Error reading installer error output: {}", e.getMessage());
+            }
+        }).start();
+
+        try {
+            installerProcess.waitFor();
+        } catch (InterruptedException e) {
+            logger.warn("Installer process interrupted: {}", e.getMessage());
+        }
+    }
+
     private static void launchServer() {
+        List<String> jvmArgs = readJvmArgsFromFile();
+
         String neoForgeVersion = "21.1.62";
         String osSpecificArgs = System.getProperty("os.name").startsWith("Windows")
                 ? "@libraries/net/neoforged/neoforge/" + neoForgeVersion + "/win_args.txt"
                 : "@libraries/net/neoforged/neoforge/" + neoForgeVersion + "/unix_args.txt";
 
         logger.info("Starting Boundless Horizons Server...");
-        executeJarFile(new String[]{"@user_jvm_args.txt", osSpecificArgs});
-    }
 
-    private static void downloadAndExecuteJar(String fileURL, String[] jarArgs) {
-        String destinationPath = currentDir + File.separator + installerFileName;
+        List<String> commandArgs = new ArrayList<>();
+        commandArgs.addAll(jvmArgs);
+        commandArgs.add(osSpecificArgs);
+
+        String argSuffix = System.getProperty("os.name").startsWith("Windows") ? "%*" : "\"$@\"";
+        commandArgs.add(argSuffix);
+
+        // Start the server process with inheritIO to take over the terminal
+        Process serverProcess = executeJarFile(commandArgs.toArray(new String[0]), true);
 
         try {
-            logger.info("Downloading file from: {}", fileURL);
-            URL url = new URI(fileURL).toURL();
-            try (InputStream inputStream = url.openStream()) {
-                Files.copy(inputStream, Paths.get(destinationPath), StandardCopyOption.REPLACE_EXISTING);
+            // Wait for the server process to finish
+            int exitCode = serverProcess.waitFor();
+            logger.info("Server process exited with code: {}", exitCode);
+        } catch (InterruptedException e) {
+            logger.warn("Waiting for server process interrupted: {}", e.getMessage());
+        }
+    }
+
+    private static Process executeJarFile(String[] javaArgs, boolean inheritIO) {
+        List<String> command = new ArrayList<>();
+        command.add("java");
+        command.addAll(Arrays.asList(javaArgs));
+
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder(command)
+                    .directory(new File(currentDir));
+
+            if (inheritIO) {
+                processBuilder.redirectErrorStream(true).inheritIO(); // Inherit I/O for the server
             }
-            logger.info("Download completed: {}", destinationPath);
-        } catch (IOException | URISyntaxException e) {
-            logger.error("Error downloading file from {}: {}", fileURL, e.getMessage());
-            return;
-        }
 
-        logger.info("Executing the downloaded JAR file...");
-        executeJarFile(new String[]{"-jar",installerFileName, "--install-server"});
-    }
-
-    private static void executeJarFile(String[] javaArgs) {
-        String[] command = new String[1 + javaArgs.length];
-        command[0] = "java";
-        System.arraycopy(javaArgs, 0, command, 1, javaArgs.length);
-
-        try {
-            ProcessBuilder processBuilder = new ProcessBuilder(command).directory(new File(currentDir));
             Process process = processBuilder.start();
+            return process;
 
-            StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), "OUTPUT");
-            StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), "ERROR");
-
-            outputGobbler.start();
-            errorGobbler.start();
-
-            process.waitFor();
-
-            process.getOutputStream().close();
-            outputGobbler.join();
-            errorGobbler.join();
-
-        } catch (IOException | InterruptedException e) {
-            logger.error("Error executing command: {}", Arrays.toString(command), e);
+        } catch (IOException e) {
+            logger.error("Error executing command: {}", command.toString(), e);
+            return null;
         }
     }
+
 
     private static void downloadMrPack(String fileURL, String[] excludedPaths) {
         Path tempMrPackPath = Path.of(currentDir, "temp.mrpack");
@@ -136,17 +303,17 @@ public class BoundlessServer {
                     JsonObject fileObject = fileElement.getAsJsonObject();
                     String path = fileObject.get("path").getAsString();
                     String downloadUrl = fileObject.getAsJsonArray("downloads").get(0).getAsString();
+                    String expectedSha1 = fileObject.getAsJsonObject("hashes").get("sha1").getAsString();
+                    String expectedSha512 = fileObject.getAsJsonObject("hashes").get("sha512").getAsString();
 
                     if (shouldProcessFile(fileObject, excludedPaths)) {
                         Path outputPath = Path.of(currentDir, path);
                         Files.createDirectories(outputPath.getParent());
                         logger.info("Downloading mod: {}", path);
 
-                        try (InputStream in = new URL(downloadUrl).openStream()) {
-                            Files.copy(in, outputPath, StandardCopyOption.REPLACE_EXISTING);
-                            logger.info("Downloaded {} to {}", path, outputPath);
-                        } catch (IOException e) {
-                            logger.error("Failed to download mod {}: {}", path, e.getMessage());
+                        boolean downloadSuccessful = downloadWithRetry(downloadUrl, outputPath, expectedSha1, expectedSha512);
+                        if (!downloadSuccessful) {
+                            logger.error("Failed to download {} after retries", path);
                         }
                     } else {
                         logger.info("Skipping: {}", path);
@@ -163,6 +330,55 @@ public class BoundlessServer {
         } catch (IOException | URISyntaxException e) {
             logger.error("Error downloading or processing .mrpack file: {}", e.getMessage());
         }
+    }
+
+    private static boolean downloadWithRetry(String downloadUrl, Path outputPath, String expectedSha1, String expectedSha512) {
+        int retries = 3;
+        for (int i = 0; i < retries; i++) {
+            try (InputStream in = new URL(downloadUrl).openStream()) {
+                Files.copy(in, outputPath, StandardCopyOption.REPLACE_EXISTING);
+                logger.info("Downloaded {} to {}", outputPath.getFileName(), outputPath);
+
+                if (verifyFileHashes(outputPath.toFile(), expectedSha1, expectedSha512)) {
+                    return true;
+                } else {
+                    logger.error("File hash verification failed for: {}", outputPath.getFileName());
+                }
+            } catch (IOException e) {
+                logger.error("Failed to download mod {}: {}", outputPath.getFileName(), e.getMessage());
+            }
+        }
+        return false;
+    }
+
+    private static boolean verifyFileHashes(File file, String expectedSha1, String expectedSha512) {
+        try {
+            String computedSha1 = computeFileHash(file, "SHA-1");
+            String computedSha512 = computeFileHash(file, "SHA-512");
+            return computedSha1.equals(expectedSha1) && computedSha512.equals(expectedSha512);
+        } catch (NoSuchAlgorithmException e) {
+            logger.error("SHA algorithm not found: {}", e.getMessage());
+            return false;
+        } catch (IOException e) {
+            logger.error("Error reading file for hash verification: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    private static String computeFileHash(File file, String algorithm) throws NoSuchAlgorithmException, IOException {
+        MessageDigest digest = MessageDigest.getInstance(algorithm);
+        try (InputStream is = new FileInputStream(file)) {
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = is.read(buffer)) != -1) {
+                digest.update(buffer, 0, bytesRead);
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        for (byte b : digest.digest()) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
     }
 
     private static void copyOverrides() {
@@ -237,28 +453,6 @@ public class BoundlessServer {
             Files.deleteIfExists(path);
         } catch (IOException e) {
             logger.error("Error deleting file: {}", path, e.getMessage());
-        }
-    }
-
-    private static class StreamGobbler extends Thread {
-        private final InputStream inputStream;
-        private final String type;
-
-        public StreamGobbler(InputStream inputStream, String type) {
-            this.inputStream = inputStream;
-            this.type = type;
-        }
-
-        @Override
-        public void run() {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    logger.info("[{}] {}", type, line);
-                }
-            } catch (IOException e) {
-                logger.error("Error reading output stream: {}", e.getMessage());
-            }
         }
     }
 }

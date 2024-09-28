@@ -2,6 +2,7 @@
   <configuration default="false" name="BoundlessServer" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="com.vaporvee.boundlessutil.BoundlessServer" />
     <module name="boundless-server.main" />
+    <option name="PROGRAM_PARAMETERS" value="-Xms4G -Xmx4G" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/run" />
     <method v="2">
       <option name="Make" enabled="true" />
