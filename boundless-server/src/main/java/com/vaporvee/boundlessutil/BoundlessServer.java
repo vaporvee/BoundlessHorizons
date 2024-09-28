@@ -7,6 +7,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.io.*;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -15,7 +17,6 @@ import java.nio.file.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -24,6 +25,7 @@ public class BoundlessServer {
     private static final String currentDir = System.getProperty("user.dir");
     private static final String installerFileName = "installer.jar";
     private static final String serverConfigFileName = "boundless-server.json";
+    private static boolean nogui = false;
 
     public static void main(String[] args) {
         writeJvmArgsToFile(args);
@@ -52,23 +54,6 @@ public class BoundlessServer {
 
         markServerAsUpdated();
         launchServer();
-    }
-
-
-    private static List<String> readJvmArgsFromFile() {
-        Path jvmArgsFile = Path.of(currentDir, "user_jvm_args.txt");
-        List<String> jvmArgs = new ArrayList<>();
-
-        try (BufferedReader reader = Files.newBufferedReader(jvmArgsFile)) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                jvmArgs.add(line);
-            }
-        } catch (IOException e) {
-            logger.error("Error reading JVM arguments from file: {}", e.getMessage());
-        }
-
-        return jvmArgs;
     }
 
     public static String getLatestModpackUrl(String modpackSlug, String channel) {
@@ -107,17 +92,37 @@ public class BoundlessServer {
         return null;
     }
 
-    private static void writeJvmArgsToFile(String[] jvmArgs) {
+    private static void writeJvmArgsToFile(String[] args) {
         Path jvmArgsFile = Path.of(currentDir, "user_jvm_args.txt");
-
+        logger.warn(args);
         try (BufferedWriter writer = Files.newBufferedWriter(jvmArgsFile)) {
-            for (String arg : jvmArgs) {
+            for (String arg : args) {
+                if (arg.equalsIgnoreCase("nogui") || arg.equalsIgnoreCase("--nogui")) {
+                    writeJvmArgsFromRuntime();
+                    nogui = true;
+                    break;
+                }
                 writer.write(arg);
                 writer.newLine();
             }
             logger.info("JVM arguments written to: {}", jvmArgsFile);
         } catch (IOException e) {
             logger.error("Error writing to user_jvm_args.txt: {}", e.getMessage());
+        }
+    }
+
+    private static void writeJvmArgsFromRuntime() {
+        RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
+        List<String> jvmArgs = runtimeMxBean.getInputArguments();
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("user_jvm_args.txt", true))) {
+            for (String arg : jvmArgs) {
+                writer.write(arg);
+                writer.newLine();
+            }
+            System.out.println("JVM arguments written to user_jvm_args.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -189,7 +194,7 @@ public class BoundlessServer {
     }
 
     private static void executeInstaller(String[] jarArgs) {
-        Process installerProcess = executeJarFile(jarArgs, false); // Use false to handle the installer output manually
+        Process installerProcess = executeJarFile(jarArgs, false);
         if (installerProcess == null) {
             logger.error("Failed to start the installer.jar process. Exiting program.");
             System.exit(1);
@@ -225,8 +230,6 @@ public class BoundlessServer {
     }
 
     private static void launchServer() {
-        List<String> jvmArgs = readJvmArgsFromFile();
-
         String neoForgeVersion = "21.1.62";
         String osSpecificArgs = System.getProperty("os.name").startsWith("Windows")
                 ? "@libraries/net/neoforged/neoforge/" + neoForgeVersion + "/win_args.txt"
@@ -235,17 +238,17 @@ public class BoundlessServer {
         logger.info("Starting Boundless Horizons Server...");
 
         List<String> commandArgs = new ArrayList<>();
-        commandArgs.addAll(jvmArgs);
         commandArgs.add(osSpecificArgs);
 
         String argSuffix = System.getProperty("os.name").startsWith("Windows") ? "%*" : "\"$@\"";
         commandArgs.add(argSuffix);
+        if(nogui){
+            commandArgs.add("nogui");
+        }
 
-        // Start the server process with inheritIO to take over the terminal
         Process serverProcess = executeJarFile(commandArgs.toArray(new String[0]), true);
 
         try {
-            // Wait for the server process to finish
             int exitCode = serverProcess.waitFor();
             logger.info("Server process exited with code: {}", exitCode);
         } catch (InterruptedException e) {
@@ -263,7 +266,7 @@ public class BoundlessServer {
                     .directory(new File(currentDir));
 
             if (inheritIO) {
-                processBuilder.redirectErrorStream(true).inheritIO(); // Inherit I/O for the server
+                processBuilder.redirectErrorStream(true).inheritIO();
             }
 
             Process process = processBuilder.start();
