@@ -1,8 +1,0 @@
-{
-  "main_worker_executor_count": 8,
-  "main_worker_executor_priority_cut": 6,
-  "render_thread_priority": 10,
-  "server_thread_priority": 10,
-  "render_remove_yield": true,
-  "hide_gui": false
-}
