@@ -24,6 +24,7 @@ services:
         shaderpacks/*
       SERVER_NAME: "A Boundless Horizons Modpack Server"
       MOTD: "\u00a72A\u00a76 Boundless \u00a71Horizons \u00a72Modpack Server"
+      ICON: "https://raw.githubusercontent.com/vaporvee/BoundlessHorizons/refs/heads/main/assets/icon.png"
       DIFFICULTY: "NORMAL"
       SPAWN_PROTECTION: "0"
     volumes:
