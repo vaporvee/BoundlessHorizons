@@ -1,2 +1,5 @@
 # Thats not even css why would you use that file extension???
 config/emi.css
+
+# Docker compose
+data/
