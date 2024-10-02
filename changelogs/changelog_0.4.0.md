@@ -1,4 +1,4 @@
-## Summary
+### Summary:
 This update adds a lot of quality of life improvements. Fixes a lot of bad configs and added a few great mods.
 
 ### Added:
