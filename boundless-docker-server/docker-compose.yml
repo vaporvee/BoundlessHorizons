@@ -13,7 +13,6 @@ services:
       MEMORY: "4g"
       MOD_PLATFORM: MODRINTH
       MODRINTH_MODPACK: ScTwzzH2
-      MODRINTH_DEFAULT_VERSION_TYPE: beta
       MODRINTH_EXCLUDE_FILES: |
         sound
         sodium-extra
