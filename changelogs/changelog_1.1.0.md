@@ -1,0 +1,51 @@
+### Added:
+- Amendments
+- Better Ping Display [Fabric]
+- EMI Ores
+- Fresh Animations
+- Industrial Foregoing: Souls
+- Living Things
+- ModernDeco
+- Paxi
+- Sit
+- Storage Drawers
+- Trinkets
+- Trinkets Compat Layer for Accessories
+- YUNG's API
+- YUNG's Better Desert Temples
+- YUNG's Better Dungeons
+- YUNG's Better End Island
+- YUNG's Better Jungle Temples
+- YUNG's Better Mineshafts
+- YUNG's Better Nether Fortresses
+- YUNG's Better Ocean Monuments
+- YUNG's Better Strongholds
+- YUNG's Better Witch Huts
+- YUNG's Bridges
+- YUNG's Extras
+- YUNG's Menu Tweaks
+### Removed:
+- Let Me Despawn
+- Ranged Weapon API
+- Shield API
+- Structure Pool API
+### Updated:
+- Accessories
+- Arts & Crafts
+- Concentration
+- EMI professions (EMIP)
+- Ender IO
+- FancyMenu
+- Forgified Fabric API
+- Friends & Foes (Forge/NeoForge)
+- Fzzy Config
+- GpuTape
+- Iceberg
+- Industrial Foregoing
+- Modern Industrialization
+- Moonlight Lib
+- Relics: Artifacts Compat
+- SmartBlockPlacement
+- Tom's Peripherals
+- You're in Grave Danger
+- Mods config
