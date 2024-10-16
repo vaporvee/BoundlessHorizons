@@ -48,7 +48,8 @@ public class BoundlessServer {
                 "mods/Sounds",
                 "mods/sodium-extra",
                 "mods/watermedia",
-                "mods/world-host"
+                "mods/world-host",
+                "mods/betterpingdisplay-fabric"
         };
         downloadMrPack(getLatestModpackUrl(modpack, "release"), excludedPaths);
 

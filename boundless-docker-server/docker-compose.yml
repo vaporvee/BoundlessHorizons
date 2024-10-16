@@ -19,6 +19,7 @@ services:
         watermedia
         world-host
         better-modlist
+        better-ping-display-fabric
       MODRINTH_OVERRIDES_EXCLUSIONS: |
         resourcepacks/*
         shaderpacks/*
