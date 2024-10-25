@@ -1,0 +1,77 @@
+### Summary:
+Updated configs and a few mods. Added small new mods and removed some that were not needed.
+### Added:
+- Do a Barrel Roll
+- Enhanced Block Entities
+- Lithium
+- Simply Harvesting
+- oωo (owo-lib)
+### Removed:
+- DiscCord
+- FPS Reducer
+- Observable
+- RightClickHarvest
+- Show Dimension In Name
+### Updated:
+- Almost Unified
+- AmbientSounds
+- Amendments
+- Animatica Foxified
+- BadOptimizations
+- Better ModList [(Neo)Forge]
+- Better Third Person
+- Biomes O' Plenty
+- Chat Heads
+- Chipped
+- Collective
+- Common Network
+- Concentration
+- CreativeCore
+- Curios API Continuation
+- Custom Machinery
+- Dynamic FPS
+- Expanded Storage
+- FancyMenu
+- Fast Paintings
+- FerriteCore
+- Fzzy Config
+- ImmediatelyFast
+- Jade 🔍
+- JamLib
+- Kotlin for Forge
+- Living Things
+- Lootr
+- M.R.U
+- ModernDeco
+- Moonlight Lib
+- Moving Elevators
+- Occultism
+- Oh The Biomes We've Gone
+- Packet Fixer
+- Paxi
+- Puzzles Lib
+- Relics
+- Relics: Artifacts Compat
+- Searchables
+- Silent Gear
+- SmartBlockPlacement
+- Storage Drawers
+- The Bumblezone - NeoForge/Forge
+- WATERMeDIA
+- Waystones
+- YUNG's API
+- YUNG's Better Desert Temples
+- YUNG's Better Dungeons
+- YUNG's Better End Island
+- YUNG's Better Jungle Temples
+- YUNG's Better Mineshafts
+- YUNG's Better Nether Fortresses
+- YUNG's Better Ocean Monuments
+- YUNG's Better Strongholds
+- YUNG's Better Witch Huts
+- YUNG's Bridges
+- YUNG's Extras
+- YUNG's Menu Tweaks
+- notblue's Vegan Recipes
+- Neoforge (mod loader)
+- Mods config
