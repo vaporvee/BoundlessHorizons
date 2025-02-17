@@ -1,0 +1,221 @@
+### Summary:
+Picked up the modpack again and modernized it. 
+Most mods aren't supported beyond 1.21.1 yet so we are staying with this version for now.
+
+### Added:
+- AddonsLib
+- Alcohol Only
+- Aquaculture Delight
+- Fish of Thieves
+- Fishermen's Trap
+- GuideME
+- Inventory Tweaks: ReFoxed
+- Stellaris
+- Vegan Delight
+- WayFix
+### Removed:
+- Clean F3
+- Client Sort
+- Cloth Config API
+- Concentration
+- Global Options
+- Industrialization Overdrive
+- Kirin
+- Lightweight Inventory Sorting
+- Realistic Bees
+- Stfu
+- YetAnotherConfigLib (YACL)
+- [Let's Do] Farm & Charm
+### Updated:
+- 3D Skin Layers
+- AE2 QoL Recipes
+- Advancement Plaques
+- Almost Unified
+- AmbientSounds
+- Amendments
+- Applied Energistics 2
+- Applied Energistics 2 Wireless Terminals
+- Applied Energistics Delight
+- Applied Mekanistics
+- Areas
+- Arts & Crafts
+- Backpacks!
+- BadOptimizations
+- Balm
+- Better ModList
+- Better Spawner Control
+- Block Runner
+- Bookshelf
+- CC: Tweaked
+- Chat Heads
+- Chococraft
+- Client Tweaks
+- Collective
+- Common Network
+- Controlling
+- CorgiLib
+- CraftPresence
+- CraftTweaker
+- Crafting Tweaks
+- CreativeCore
+- Creeper Overhaul
+- Cucumber Library
+- Custom Machinery
+- Deeper and Darker
+- Diagonal Fences
+- Diagonal Walls
+- Diagonal Windows
+- Dismount Entity
+- Do a Barrel Roll
+- Double Doors
+- Dynamic Crosshair
+- Dynamic FPS
+- EMI
+- EMI Loot
+- EMI Ores
+- Easy Elytra Takeoff
+- Edibles
+- Ender IO
+- Entangled
+- Entity Culling
+- Expanded Storage
+- Extended Industrialization
+- Falling Leaves (NeoForge/Forge)
+- FallingTree
+- FancyMenu
+- Farmer's Delight
+- First Join Message
+- Fish On The Line
+- Fixed Anvil Repair Cost
+- Forge Config API Port
+- Forgified Fabric API
+- Friends & Foes (Forge/NeoForge)
+- Fruits Delight
+- Full Brightness Toggle
+- Fusion (Connected Textures)
+- Fzzy Config
+- Geckolib
+- Grass Seeds
+- Healing Campfire
+- Ice Prevents Crop Growth
+- Iceberg
+- ImmediatelyFast
+- Improved Sign Editing
+- Industrial Foregoing
+- Industrial Foregoing: Souls
+- Infinite Trading
+- Inventory Totem
+- Iris Shaders
+- Iron Jetpacks
+- Jade 🔍
+- JamLib
+- Just Mob Heads
+- Just Player Heads
+- Katters Structures
+- Katters Structures - Dungeon
+- Katters Structures - Village
+- Keep My Soil Tilled
+- Kotlin for Forge
+- Ksyxis
+- Lighty
+- Lithium
+- Lootr
+- M.R.U
+- MEGA Cells
+- MI Tweaks
+- Macaw's Biomes O' Plenty
+- Macaw's Doors
+- Macaw's Trapdoors
+- Mekanism
+- Mekanism Additions
+- Mekanism Generators
+- Mekanism Tools
+- MidnightLib
+- Mineral Chance
+- Modern Dynamics
+- Modern Industrialization
+- ModernDeco
+- ModernFix
+- Modonomicon
+- Moonlight Lib
+- Mooshroom Tweaks
+- More Culling
+- Name Tag Tweaks
+- Naturally Charged Creepers
+- No Hostiles Around Campfire
+- Not Enough Animations
+- Occultism
+- OctoLib
+- Oh The Biomes We've Gone
+- Oh The Trees You'll Grow
+- Ok Zoomer
+- Omega Mute
+- Open Parties and Claims
+- Packet Fixer
+- Pet Names
+- Polymorph
+- Powah!
+- Presence Footsteps
+- Puzzles Lib
+- Quad
+- Random Mob Effects
+- Random Village Names
+- Reese's Sodium Options
+- Relics
+- Relics: Artifacts Compat
+- Replanting Crops
+- Repurposed Structures - Neoforge/Forge
+- Resourceful Config
+- Respawning Shulkers
+- SecurityCraft
+- Selfexpression
+- Shulker Box Tooltip
+- Silent Gear
+- Silent Lib
+- Simple Voice Chat
+- Sinytra Connector
+- Skeleton Horse Spawn
+- Smaller Nether Portals
+- SmartBrainLib
+- Sodium
+- Sodium Extra
+- Sounds
+- Stack Refill
+- Starter Kit
+- Sticky Enchanting Lapis
+- Storage Drawers
+- SuperMartijn642's Core Lib
+- TerraBlender
+- Tesseract API
+- The Bumblezone - NeoForge/Forge
+- Titanium
+- TrashSlot
+- Traveler's Backpack
+- UniLib
+- Useful Slime
+- Vanilla Constructs
+- Village Spawn Point
+- Villager Names
+- WATERFrAMES: Multimedia Displays
+- WATERMeDIA
+- Waystones
+- Weaker Spiderwebs
+- World Host
+- Xaero's Minimap
+- Xaero's World Map
+- YUNG's API
+- YUNG's Better Desert Temples
+- YUNG's Better Dungeons
+- YUNG's Better Jungle Temples
+- YUNG's Better Nether Fortresses
+- YUNG's Better Ocean Monuments
+- YUNG's Menu Tweaks
+- You're in Grave Danger
+- Zombie Horse Spawn
+- [EMF] Entity Model Features
+- [ETF] Entity Texture Features
+- moonstone
+- notblue's Vegan Recipes
+- oωo (owo-lib)
+- Neoforge (mod loader)
+- Mods config

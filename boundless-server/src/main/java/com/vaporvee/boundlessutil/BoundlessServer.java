@@ -35,7 +35,7 @@ public class BoundlessServer {
             return;
         }
 
-        String neoForgeVersion = "21.1.68"; // need to auto update in the future
+        String neoForgeVersion = "21.1.119"; // need to auto update in the future
         String modpack = "boundless";
         String jarUrl = String.format("https://maven.neoforged.net/releases/net/neoforged/neoforge/%s/neoforge-%s-installer.jar", neoForgeVersion, neoForgeVersion);
 

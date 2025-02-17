@@ -5,3 +5,5 @@ config/emi.css
 data/
 
 debug.log
+
+venv/
